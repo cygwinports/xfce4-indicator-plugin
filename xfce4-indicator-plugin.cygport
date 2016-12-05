@@ -1,0 +1,14 @@
+inherit xfce4
+
+NAME="xfce4-indicator-plugin"
+VERSION=2.3.3
+RELEASE=1
+CATEGORY="Xfce"
+SUMMARY="Indicator applet for Xfce panel"
+DESCRIPTION="A Panelplugin for Xfce4 that uses indicator-application to show
+new messages."
+
+PATCH_URI="2.3.3-cygwin-soname.patch"
+
+# the one indicator we actually benefit from outside of Unity
+REQUIRES="indicator-application"
