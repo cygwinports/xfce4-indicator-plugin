@@ -1,0 +1,86 @@
+--- origsrc/xfce4-indicator-plugin-2.3.4/panel-plugin/indicator-box.c	2018-04-23 20:04:00.728355600 -0500
++++ src/xfce4-indicator-plugin-2.3.4/panel-plugin/indicator-box.c	2018-04-23 20:09:54.245866300 -0500
+@@ -185,7 +185,7 @@ xfce_indicator_box_sort_buttons (gconstp
+ 
+   /* special case for Application indicators (unreliable ordering) */
+   /* always compare by name and ignore location field */
+-  if (a_io != NULL && g_strcmp0 (a_io, "libayatana-application.so") == 0)
++  if (a_io != NULL && g_strcmp0 (a_io, LIBSO("ayatana-application")) == 0)
+     result = g_strcmp0 (xfce_indicator_button_get_entry(a0)->name_hint,
+                         xfce_indicator_button_get_entry(b0)->name_hint);
+ 
+@@ -224,7 +224,7 @@ xfce_indicator_box_add (GtkContainer *co
+   io_name = xfce_indicator_button_get_io_name (button);
+   li = g_hash_table_lookup (box->children, io_name);
+   // printf ("   +++ %s %s\n", io_name, xfce_indicator_button_get_entry (button)->name_hint);
+-  if (g_strcmp0 (io_name, "libayatana-application.so") != 0 &&
++  if (g_strcmp0 (io_name, LIBSO("ayatana-application")) != 0 &&
+       xfce_indicator_button_get_pos (button) == 0)
+     li = g_list_append (li, button);
+   else
+--- origsrc/xfce4-indicator-plugin-2.3.4/panel-plugin/indicator-config.h	2018-03-09 17:38:16.000000000 -0600
++++ src/xfce4-indicator-plugin-2.3.4/panel-plugin/indicator-config.h	2018-04-23 20:10:19.423172700 -0500
+@@ -24,6 +24,12 @@
+ #include <dbus/dbus-glib.h>
+ #endif
+ 
++#ifdef __CYGWIN__
++#define LIBSO(name) "cyg" name ".dll"
++#else
++#define LIBSO(name) "lib" name ".so"
++#endif
++
+ G_BEGIN_DECLS
+ 
+ typedef struct _IndicatorConfigClass IndicatorConfigClass;
+--- origsrc/xfce4-indicator-plugin-2.3.4/panel-plugin/indicator-dialog.c	2018-04-23 20:04:00.745850300 -0500
++++ src/xfce4-indicator-plugin-2.3.4/panel-plugin/indicator-dialog.c	2018-04-23 20:11:19.889722800 -0500
+@@ -54,26 +54,26 @@
+ static const gchar *pretty_names[][3] =
+ {
+   /* raw name,                           pretty name,                                 icon-name(?) */
+-  { "libayatana-application.so",         N_("Application Indicators"),               "application-default-icon" },
+-  { "libayatana-soundmenu.so",           N_("Sound Menu"),                           "preferences-desktop-sound" },
++  { LIBSO("ayatana-application"),        N_("Application Indicators"),               "application-default-icon" },
++  { LIBSO("ayatana-soundmenu"),          N_("Sound Menu"),                           "preferences-desktop-sound" },
+   { "org.ayatana.indicator.sound",       N_("Sound Menu"),                           "preferences-desktop-sound" },
+-  { "libayatana-printersmenu.so",        N_("Printers Menu"),                        "printer" },
+-  { "libayatana-power.so",               N_("Power Management"),                     NULL },
++  { LIBSO("ayatana-printersmenu"),       N_("Printers Menu"),                        "printer" },
++  { LIBSO("ayatana-power"),              N_("Power Management"),                     NULL },
+   { "org.ayatana.indicator.power",       N_("Power Management"),                     NULL },
+-  { "libayatana-appmenu.so",             N_("Application Menus (Global Menu)"),      "menu-editor" },
+-  { "libayatana-session.so",             N_("Session Management"),                   NULL },
++  { LIBSO("ayatana-appmenu"),            N_("Application Menus (Global Menu)"),      "menu-editor" },
++  { LIBSO("ayatana-session"),            N_("Session Management"),                   NULL },
+   { "org.ayatana.indicator.session",     N_("Session Management"),                   NULL },
+-  { "libayatana-messaging.so",           N_("Messaging Menu"),                       "indicator-messages-new" },
++  { LIBSO("ayatana-messaging"),          N_("Messaging Menu"),                       "indicator-messages-new" },
+   { "org.ayatana.indicator.messages",    N_("Messaging Menu"),                       "indicator-messages-new" },
+-  { "libayatana-datetime.so",            N_("Date and Time"),                        "time-admin" },
++  { LIBSO("ayatana-datetime"),           N_("Date and Time"),                        "time-admin" },
+   { "org.ayatana.indicator.datetime",    N_("Date and Time"),                        "time-admin" },
+-  { "libayatana-bluetooth.so",           N_("Bluetooth"),                            "bluetooth-active" },
++  { LIBSO("ayatana-bluetooth"),          N_("Bluetooth"),                            "bluetooth-active" },
+   { "org.ayatana.indicator.bluetooth",   N_("Bluetooth"),                            "bluetooth-active" },
+-  { "libayatana-syncindicator.so",       N_("Sync Menu"),                            "sync-client-updating" },
++  { LIBSO("ayatana-syncindicator"),      N_("Sync Menu"),                            "sync-client-updating" },
+   { "org.ayatana.indicator.keyboard",    N_("Keyboard"),                             NULL },
+   { "org.ayatana.indicator.location",    N_("Location"),                             NULL },
+   { "org.ayatana.indicator.network",     N_("Network"),                              NULL },
+-  { "libayatana-workrave.so",            N_("Workrave"),                             "workrave" },
++  { LIBSO("ayatana-workrave"),           N_("Workrave"),                             "workrave" },
+ };
+ 
+ 
+--- origsrc/xfce4-indicator-plugin-2.3.4/panel-plugin/indicator.c	2018-04-23 20:04:00.741849500 -0500
++++ src/xfce4-indicator-plugin-2.3.4/panel-plugin/indicator.c	2018-04-23 20:12:24.989777400 -0500
+@@ -433,7 +433,7 @@ indicator_load_module (IndicatorPlugin *
+     return FALSE;
+ 
+ #ifdef DISABLE_APPLICATION
+-  if (!g_strcmp0 (name, "libayatana-application.so"))
++  if (!g_strcmp0 (name, LIBSO("ayatana-application")))
+     return FALSE;
+ #endif
+ 
